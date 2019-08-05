@@ -11,3 +11,31 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+main {
+  background: rgb(212, 212, 212);
+  padding-top: 3em;
+  padding-bottom: 10em;
+}
+
+.card {
+  width: 60%;
+  display: block;
+  margin-left: 10%;
+  margin-right: auto;
+  background: white;
+  padding: 1em;
+  border-radius: 10px;
+  margin-bottom: 1em;
+}
+
+#buttons {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  justify-content: space-between;
+  height: 6em;
+  top: 3em;
+  right: 20%;
+}

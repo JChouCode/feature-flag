@@ -1,7 +1,7 @@
 
 const { ApolloServer, gql } = require("apollo-server-express");
 const express = require("express");
-const FeatureFlag = require("./mongoose/flagSchema2");
+const FeatureFlag = require("./mongoose/flagSchema");
 const mongoose = require("mongoose");
 
 const flag = new FeatureFlag();
@@ -18,7 +18,6 @@ const typeDefs = gql`
     feature: String!
     description: String
     enabled: Boolean!
-    payload: String
  }
 
  type Query {
@@ -27,9 +26,7 @@ const typeDefs = gql`
  }
 
  type Mutation {
-   addFlag(feature: String!): flag
-   addFlag(feature: String!, description: String!, enabled: Boolean!)
-   editDescription(feature: String!, description: String!)
+   addFlag(feature: String!, description: String!, enabled: Boolean!): flag
    removeFlag(feature: String!): flag
    toggleFlag(feature: String!): flag
  }
@@ -48,15 +45,14 @@ const resolvers = {
   },
   Mutation: {
     addFlag(_p, {
-      feature
+      feature, description, enabled
     }, _c) {
-      return flag.addFlag(feature).then(test => test);
+      return flag.addFlag(feature, description, enabled).then(test => test);
     },
     removeFlag(_p, {
       feature
     }, _c) {
-
-      return flag.addFlag(feature);
+      return flag.removeFlag(feature);
     },
     toggleFlag(_p, {
       feature

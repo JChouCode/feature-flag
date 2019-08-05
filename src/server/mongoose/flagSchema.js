@@ -1,46 +1,91 @@
-import mongoose from "mongoose"
+const mongoose = require("mongoose")
 
-const flagSchema = new mongoose.Schema({
-  feature: String,
-  description: String,
-  enabled: Boolean
-});
+class FeatureFlag {
 
-flagSchema.methods.dbAddFlag = async function (feature) {
-  await new this.model("flag").save()
-}
+  Model
+  flagSchema
 
-flagSchema.methods.dbRemoveFlag = async function (feature) {
-  return new this.model("flag").save()
-}
+  constructor() {
+    this.flagSchema = new mongoose.Schema({
+      feature: String,
+      description: String,
+      enabled: Boolean
+    });
+    this.Model = mongoose.model("", this.flagSchema);
+  }
 
-flagSchema.methods.dbToggleFlag = async function (feature) {
-  await this.Model.findOne({
+  async getAll() {
+    return await this.Model.find((error, docs) => {
+      return docs.map(doc => {
+        return {
+          feature: doc.feature,
+          description: doc.description,
+          enabled: doc.enabled
+        }
+      });
+    });
+  }
+
+  async getFlag(feature) {
+    return await this.Model.findOne({
       feature: feature
-    },
-    async function (err: Error, doc: any) {
-      if (err) {
-        console.error(err);
-        return
-      } else {
-        if (doc.enabled) {
-          doc.enabled = false;
+    }, (error, doc) => {
+      return {
+        feature: doc.feature,
+        description: doc.description,
+        enabled: doc.enabled
+      }
+    })
+  }
+
+  async addFlag(feature, description, enabled) {
+    return new this.Model({
+      feature: feature,
+      description: description,
+      enabled: enabled
+    }).save();
+  }
+
+  async removeFlag(feature) {
+    return await this.Model.findOneAndDelete({
+      feature: feature
+    }, (error, doc) => {
+      if (error) {
+        console.error(error);
+        return {};
+      }
+      return {
+        feature: doc.feature,
+        description: doc.description,
+        enabled: doc.enabled
+      }
+    });
+  }
+
+  async toggleFlag(feature) {
+    return await this.Model.findOne({
+        feature: feature
+      },
+      async function (err, doc) {
+        if (err) {
+          console.error(err);
+          return
         } else {
-          doc.enabled = true;
+          if (doc.enabled) {
+            doc.enabled = false;
+          } else {
+            doc.enabled = true;
+          }
+        }
+        await doc.save();
+        return {
+          feature: doc.feature,
+          description: doc.description,
+          enabled: !doc.enabled
         }
       }
-      await doc.save();
-    }
-  );
+    );
+  }
 }
 
-flagSchema.methods.dbGetFlags = function () {
-  return new this.model("flag").save()
-}
-
-flagSchema.methods.dbGetFlag = function (feature) {
-  return new this.model("flag").save()
-}
-
-
-module.exports = flagSchema;
+module.exports = FeatureFlag;
